@@ -33,6 +33,7 @@ function check(){
     const card_1 = document.querySelector(`[${data_idx_key}="${selected[0]}"]`);
     const card_2 = document.querySelector(`[${data_idx_key}="${selected[1]}"]`);
     if (selected[0] != selected[1]){
+        console.log(`Card: ${card_1.getAttribute('src')}`)
         if (cards[selected[0]] === cards[selected[1]]){
             card_1.classList.add('checked');
             card_2.classList.add('checked');
@@ -56,11 +57,15 @@ function check(){
 
 
 
-
 /**Flip the card on click on it */
 function flip(){
     const card_index = this.getAttribute(data_idx_key);
     selected.push(card_index);
+    if(cards.length == 0) {
+        console.log(FIELD_SIZE);
+        alert("Congratulations! You've got an extremely rare Void Card Pack! If you have played with someone for a while, then you are considered the winner! Now, let's start over again!!");
+        start(0);
+    }
     this.setAttribute('src', `./images/${cards[card_index]}.png`);
 
     if (selected.length == 2) {
@@ -97,6 +102,7 @@ function generate_cards(){
     indices = indices.concat(indices);
     shuffle_array(indices);
     cards = indices;
+
 }
 
 /**Creates game field */
@@ -118,9 +124,9 @@ function update_timer(){
         current_time++;
         let ctimer = document.getElementById("time_counter");
         ctimer.innerText = "Time: "+ current_time.toString();
-        console.log(current_time);
         if(current_time == 999){
             alert("Your game is over! You thought too logng!");
+            clearInterval(updater);
             exit();
         }
         
@@ -129,12 +135,13 @@ function update_timer(){
 
 
 /** Start and restart function*/
-function start(){
+function start(repeated){
+    clearInterval(updater);
     let timer = document.getElementsByClassName('time_counter');
     timer.innerText = "Time: 0";
     current_time = 0;
     may_update = 0;
-    read_cardsamount();
+    if(!repeated) read_cardsamount();
     const grid = document.querySelector('.grid');
     grid.replaceChildren();
     opened_pairs = 0;
@@ -145,15 +152,17 @@ function start(){
 
 /** How many cards will be on the field */
 function read_cardsamount(){
-    console.log(FIELD_SIZE)
     let input = prompt("How many cards we'll have on the field");
-    FIELD_SIZE = (input + input%2)/10;
+    if(input<0) input*=-1;
+    if(input==0) input = 24;
+    if(input%2!=0) input++;
+    FIELD_SIZE = input;
     if (FIELD_SIZE > 24) FIELD_SIZE =24;
 }
 
 /** The main function */
 function main(){
-    start();
+    start(0);
 }
 
 main();
